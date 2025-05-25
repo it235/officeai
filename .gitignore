@@ -4,6 +4,8 @@ node_modules
 /lib_temp
 /packages_temp
 /dist
+/officeso/dist
+officeso/dist/*
 /es
 /lib
 /docs

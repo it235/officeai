@@ -400,6 +400,12 @@ Office 加载项在安装/加载时，Office 会读取 manifest.xml 来决定如
 </OfficeApp>
 ```
 
+# 四、修改taskPane面板
+
+
+
+# 五、增加api配置框
+
 
 
 # 附录:Samples

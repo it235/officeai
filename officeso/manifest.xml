@@ -6,11 +6,11 @@
   <!--插件版本号。-->
   <Version>1.0.0.0</Version>
   <!--插件提供者名称。-->
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>it235</ProviderName>
   <!--插件默认语言。-->
   <DefaultLocale>en-US</DefaultLocale>
   <!--插件显示名称。-->
-  <DisplayName DefaultValue="officeplus"/>
+  <DisplayName DefaultValue="Office For AI"/>
   <!--插件描述。-->
   <Description DefaultValue="A template to get started."/>
   <!--插件图标URL。-->
@@ -59,7 +59,7 @@
                 <Icon>
                   <bt:Image size="16" resid="Icon.16x16"/>
                   <bt:Image size="32" resid="Icon.32x32"/>
-                  <bt:Image size="80" resid="Icon.80x80"/>
+                  <bt:Image size="80" resid="Icon.64x64"/>
                 </Icon>
                 <!-- 插件功能按钮。插件功能按钮是插件的功能按钮，用于扩展插件的功能。-->
                 <Control xsi:type="Button" id="TaskpaneButton">
@@ -73,7 +73,7 @@
                   <Icon>
                     <bt:Image size="16" resid="Icon.16x16"/>
                     <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
+                    <bt:Image size="80" resid="Icon.64x64"/>
                   </Icon>
                   <!-- 插件功能按钮的点击事件。-->
                   <Action xsi:type="ShowTaskpane">
@@ -95,7 +95,8 @@
       <bt:Images>
         <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
         <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+        <bt:Image id="Icon.64x64" DefaultValue="https://localhost:3000/assets/icon-64.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/icon-64.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
@@ -104,12 +105,12 @@
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!"/>
-        <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Show Task Pane"/>
+        <bt:String id="CommandsGroup.Label" DefaultValue="AI"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Smart Office"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Your sample add-in loaded successfully. Go to the HOME tab and click the 'Show Task Pane' button to get started."/>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show a Taskpane"/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show a Chat AI"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
