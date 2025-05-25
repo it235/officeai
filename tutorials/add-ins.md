@@ -404,7 +404,56 @@ Office 加载项在安装/加载时，Office 会读取 manifest.xml 来决定如
 
 
 
-# 五、增加api配置框
+
+
+# 五、调用deepseek
+
+向cursor提出问题：点击发送按钮时，构建一个调用硅基流动api的请求把消息发送给硅基流动大模型服务apiurl是@https://api.siliconflow.cn/v1/chat/completions  模型是deepseek-ai/DeepSeek-V3，apikey是abcdefg，请求body中需要给定是stream流式返回数据，然后实时流式解析返回的数据加载到聊天内容区的AI回答中
+
+
+
+
+
+
+
+# 六、代码块高亮
+
+注意对方返回的是markdown的格式，需要你引入marked.min.js，如果有代码需要高亮显示所以需要集成highlight.min.js，并且对方是流式返回，对于markdown代码片段需要做出片段识别和局部渲染，还有处理好结尾
+
+`npm install marked highlight.js`
+
+```js
+import { marked } from 'marked';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
+```
+
+
+
+引入css异常的解决方案
+
+导包
+
+`npm install --save-dev style-loader css-loader`
+
+修改`webpack.config.js`
+
+```js
+module.exports = {
+  // ...其他配置
+  module: {
+    rules: [
+      // ...其他规则
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
+  },
+};
+```
+
+另外有个要点，由于内容是流式输出，所以markdown的内容要做一些预处理才能给到渲染器进行渲染，并且需要实时补充结尾的3个顿号
 
 
 

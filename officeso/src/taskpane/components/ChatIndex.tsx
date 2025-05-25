@@ -3,17 +3,17 @@ import { makeStyles } from "@fluentui/react-components";
 import useStyles from "./ChatStyles";
 import ChatContent from "./ChatContent";
 
-
 export interface HeaderProps {
     title: string;
     logo: string;
     message: string;
-  }
-  
+}
+
 interface ChatMessage {
   content: string;
   time: string;
   from: "me" | "ai";
+  isStreaming?: boolean;
 }
 
 const Chat: React.FC<HeaderProps> = (props: HeaderProps) => {
@@ -23,34 +23,108 @@ const Chat: React.FC<HeaderProps> = (props: HeaderProps) => {
     const [messages, setMessages] = React.useState<ChatMessage[]>([]);
     const [showDescription, setShowDescription] = React.useState(true);
     const [showChatPage, setShowChatPage] = React.useState(false);
-  
+
     function formatDateTime(date: Date) {
       const pad = (n: number) => n.toString().padStart(2, '0');
       return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
     }
-    const handleSend = () => {
+
+    const handleSend = async () => {
       if (input.trim() === "") return;
       if (showDescription) setShowDescription(false);
       const now = new Date();
       const time = formatDateTime(now);
       const newMsg: ChatMessage = { content: input, time, from: 'me' };
-      setMessages(prev => {
-        const updated = [...prev, newMsg];
-        // AI回复
-        setTimeout(() => {
-          const aiMsg: ChatMessage = {
-            content: `${input}`,
-            time: formatDateTime(new Date()),
-            from: 'ai',
-          };
-          setMessages(msgs => [...msgs, aiMsg]);
-        }, 500);
-        return updated;
-      });
+      setMessages(prev => [...prev, newMsg]);
       setInput("");
+
+      // 先插入一个空的AI消息（流式）
+      const aiMsg: ChatMessage = {
+        content: "",
+        time: formatDateTime(new Date()),
+        from: 'ai',
+        isStreaming: true,
+      };
+      setMessages(prev => [...prev, aiMsg]);
+
+      // 调用硅基流动API
+      const apiUrl = 'https://api.siliconflow.cn/v1/chat/completions';
+      const apiKey = 'sk-tdwbodjtrvsrsfavnxhdfddkjxgmlelwbxekexaolhiyuzkk';
+      const body = {
+        model: 'deepseek-ai/DeepSeek-V3',
+        messages: [
+          { role: 'user', content: input }
+        ],
+        stream: true
+      };
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(body),
+        });
+        if (!response.body) throw new Error('No stream body');
+        const reader = response.body.getReader();
+        let aiContent = "";
+        let done = false;
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          if (value) {
+            const chunk = new TextDecoder().decode(value);
+            // 解析流式数据（假设每行是data: ...）
+            chunk.split('\n').forEach(line => {
+              if (line.startsWith('data:')) {
+                const data = line.replace('data:', '').trim();
+                if (data && data !== '[DONE]') {
+                  try {
+                    const json = JSON.parse(data);
+                    const delta = json.choices?.[0]?.delta?.content || '';
+                    aiContent += delta;
+                    // 实时更新AI消息
+                    setMessages(prev => {
+                      const lastIdx = prev.length - 1;
+                      if (prev[lastIdx]?.from === 'ai' && prev[lastIdx]?.isStreaming) {
+                        const updated = [...prev];
+                        updated[lastIdx] = { ...updated[lastIdx], content: aiContent };
+                        return updated;
+                      }
+                      return prev;
+                    });
+                  } catch {}
+                }
+              }
+            });
+          }
+        }
+        // 流结束，去掉isStreaming
+        setMessages(prev => {
+          const lastIdx = prev.length - 1;
+          if (prev[lastIdx]?.from === 'ai' && prev[lastIdx]?.isStreaming) {
+            const updated = [...prev];
+            updated[lastIdx] = { ...updated[lastIdx], content: aiContent, isStreaming: false };
+            return updated;
+          }
+          return prev;
+        });
+      } catch (e) {
+        setMessages(prev => {
+          const lastIdx = prev.length - 1;
+          if (prev[lastIdx]?.from === 'ai') {
+            const updated = [...prev];
+            updated[lastIdx] = { ...updated[lastIdx], content: 'AI接口请求失败', isStreaming: false };
+            return updated;
+          }
+          return prev;
+        });
+      }
     };
+
     const handleClear = () => setInput("");
-  
+
     // 支持按回车发送
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -58,7 +132,7 @@ const Chat: React.FC<HeaderProps> = (props: HeaderProps) => {
         handleSend();
       }
     };
-  
+
     return (
       <div style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
         {showChatPage ? (
@@ -115,6 +189,6 @@ const Chat: React.FC<HeaderProps> = (props: HeaderProps) => {
         )}
       </div>
     );
-  };
-  
-  export default Chat;
+};
+
+export default Chat;

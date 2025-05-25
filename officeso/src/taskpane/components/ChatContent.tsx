@@ -1,9 +1,13 @@
 import * as React from "react";
+import { marked } from 'marked';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 
 interface ChatMessage {
   content: string;
   time: string;
   from: "me" | "ai";
+  isStreaming?: boolean;
 }
 
 interface ChatContentProps {
@@ -13,6 +17,43 @@ interface ChatContentProps {
   onSend: () => void;
   onClear: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+}
+
+// marked配置：代码高亮和换行
+marked.use({
+  extensions: [
+    {
+      name: 'code',
+      renderer(...args: any[]) {
+        let code = '';
+        let lang = '';
+        if (typeof args[0] === 'object' && args[0] && args[0].type === 'code') {
+          code = args[0].text || '';
+          lang = args[0].lang || '';
+        } else {
+          code = args[0];
+          lang = (args[1] || '').split(/\s+/)[0];
+        }
+        const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
+        const highlighted = hljs.highlight(validLang, code).value;
+        return `<pre><code class="hljs ${validLang}">${highlighted}</code></pre>`;
+      }
+    }
+  ],
+  breaks: true
+});
+
+function getDisplayContent(msg: ChatMessage) {
+  let content = msg.content || '';
+  // 补全流式未闭合代码块
+  if (
+    msg.isStreaming &&
+    content.match(/```[a-zA-Z0-9]*\n[\s\S]*$/) &&
+    !content.trim().endsWith('```')
+  ) {
+    content += '\n```';
+  }
+  return content;
 }
 
 const ChatContent: React.FC<ChatContentProps> = ({
@@ -26,13 +67,13 @@ const ChatContent: React.FC<ChatContentProps> = ({
   return (
     <>
       {/* 聊天内容区，flex: 1 可滚动，底部留出输入区高度，overflow: auto，first_description被输入区遮挡 */}
-      <div style={{flex: 1, overflow: 'auto', minHeight: 0, paddingBottom: 120, position: 'relative'}} id="chat-container">
+      <div style={{flex: 1, overflow: 'auto', minHeight: 0, paddingBottom: 120,paddingLeft:10, position: 'relative'}} id="chat-container">
         {messages.map((msg, idx) => (
           <div
             key={idx}
             style={{
               display: 'flex',
-              flexDirection: msg.from === 'me' ? 'row' : 'row-reverse',
+              flexDirection: 'row', // 始终左对齐
               alignItems: 'flex-start',
               margin: '12px 0',
             }}
@@ -43,22 +84,21 @@ const ChatContent: React.FC<ChatContentProps> = ({
                 width: 36,
                 height: 36,
                 borderRadius: '50%',
-                background: msg.from === 'me' ? '#ffe082' : '#4a6fa5',
+                background: msg.from === 'me' ? '#5DC1C7' : '#4a6fa5',
                 color: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 700,
                 fontSize: 16,
-                marginRight: msg.from === 'me' ? 12 : 0,
-                marginLeft: msg.from === 'ai' ? 12 : 0,
+                marginRight: 12,
                 flexShrink: 0,
               }}
             >{msg.from === 'me' ? '我' : 'AI'}</div>
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: msg.from === 'me' ? 'flex-start' : 'flex-end',
+              alignItems: 'flex-start',
               maxWidth: '70%',
             }}>
               <div
@@ -69,14 +109,16 @@ const ChatContent: React.FC<ChatContentProps> = ({
                   padding: '10px 16px',
                   fontSize: 15,
                   wordBreak: 'break-all',
-                  textAlign: msg.from === 'me' ? 'left' : 'right',
+                  textAlign: 'left',
+                  minWidth: 60,
                 }}
-              >{msg.content}</div>
+                dangerouslySetInnerHTML={msg.from === 'ai' ? { __html: marked(getDisplayContent(msg)) } : undefined}
+              >{msg.from === 'me' ? msg.content : null}</div>
               <span style={{
                 fontSize: 12,
                 color: '#888',
                 marginTop: 4,
-                alignSelf: msg.from === 'me' ? 'flex-start' : 'flex-end',
+                alignSelf: 'flex-start',
               }}>{msg.time}</span>
             </div>
           </div>
