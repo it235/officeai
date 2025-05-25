@@ -1,36 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--OfficeApp根节点，声明这是一个 Office 加载项。-->
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
+  <!--插件唯一标识（GUID）。-->
   <Id>9d363364-fb2d-49c1-8ac3-281415621c85</Id>
+  <!--插件版本号。-->
   <Version>1.0.0.0</Version>
+  <!--插件提供者名称。-->
   <ProviderName>Contoso</ProviderName>
+  <!--插件默认语言。-->
   <DefaultLocale>en-US</DefaultLocale>
+  <!--插件显示名称。-->
   <DisplayName DefaultValue="officeplus"/>
+  <!--插件描述。-->
   <Description DefaultValue="A template to get started."/>
+  <!--插件图标URL。-->
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
+  <!--插件高分辨率图标URL。-->
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
+  <!--插件帮助支持页的URL。-->
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
+  <!--插件支持的域名。允许插件访问外部的域名安全策略-->
   <AppDomains>
     <AppDomain>https://www.contoso.com</AppDomain>
   </AppDomains>
+  <!--插件支持的文件类型。-->
   <Hosts>
+    <!--Workbook是Excel的插件,Document是Word的插件,Slide是PPT的插件-->
     <Host Name="Workbook"/>
   </Hosts>
+  <!--插件默认设置，插件默认源位置。-->
   <DefaultSettings>
+    <!--插件主入口页面（通常是 React 应用的入口）-->
     <SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/>
   </DefaultSettings>
+  <!--插件权限。这里面也可以指定访问外部OneDrive、Graph API等-->
   <Permissions>ReadWriteDocument</Permissions>
+  <!--插件版本覆盖。为不同 Office 版本/平台提供 UI 配置（如按钮、菜单、资源等）。-->
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <!-- 声明桌面端的 UI 配置。 -->
     <Hosts>
       <Host xsi:type="Workbook">
         <DesktopFormFactor>
+          <!-- 插件启动时显示的欢迎页面。 新手引导信息，点击后跳转至LearnMoreUrl-->
           <GetStarted>
             <Title resid="GetStarted.Title"/>
             <Description resid="GetStarted.Description"/>
             <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
           </GetStarted>
+          <!-- 插件功能文件。指定了一个 HTML 文件（通常里面会引入 JS/TS 代码），这个文件中会注册和实现 Office 加载项的命令（如按钮点击时要执行的函数）。-->
+          <!-- 这个文件会在 Office 加载项启动时被 Office 加载（但不会显示 UI），用于注册命令回调。-->
           <FunctionFile resid="Commands.Url"/>
+          <!-- 插件扩展点。声明插件在 Office UI 的扩展点（如主菜单、按钮等）。-->
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <OfficeTab id="TabHome">
+              <!-- 插件功能组。插件功能组是插件的功能组，用于扩展插件的功能。-->
               <Group id="CommandsGroup">
                 <Label resid="CommandsGroup.Label"/>
                 <Icon>
@@ -38,17 +61,21 @@
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
+                <!-- 插件功能按钮。插件功能按钮是插件的功能按钮，用于扩展插件的功能。-->
                 <Control xsi:type="Button" id="TaskpaneButton">
                   <Label resid="TaskpaneButton.Label"/>
+                  <!-- 插件功能按钮的提示信息。-->
                   <Supertip>
                     <Title resid="TaskpaneButton.Label"/>
                     <Description resid="TaskpaneButton.Tooltip"/>
                   </Supertip>
+                  <!-- 插件功能按钮的图标。-->
                   <Icon>
                     <bt:Image size="16" resid="Icon.16x16"/>
                     <bt:Image size="32" resid="Icon.32x32"/>
                     <bt:Image size="80" resid="Icon.80x80"/>
                   </Icon>
+                  <!-- 插件功能按钮的点击事件。-->
                   <Action xsi:type="ShowTaskpane">
                     <TaskpaneId>ButtonId1</TaskpaneId>
                     <SourceLocation resid="Taskpane.Url"/>
@@ -60,7 +87,11 @@
         </DesktopFormFactor>
       </Host>
     </Hosts>
+    <!-- 插件资源。包括图标、URL、字符串等。-->
+    <!-- 也可以添加不同语言的字符串资源，支持多语言。-->
+    <!--本地开发时用 localhost，正式发布时需将 URL 换成线上地址，并通过 Office 365 管理后台分发。-->
     <Resources>
+      <!-- bt是指Business Tooling-->
       <bt:Images>
         <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
         <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
