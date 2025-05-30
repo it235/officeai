@@ -406,17 +406,13 @@ Office 加载项在安装/加载时，Office 会读取 manifest.xml 来决定如
 
 
 
-# 五、调用deepseek
+# 五、集成deepseek
+
+### 集成deepseek
 
 向cursor提出问题：点击发送按钮时，构建一个调用硅基流动api的请求把消息发送给硅基流动大模型服务apiurl是@https://api.siliconflow.cn/v1/chat/completions  模型是deepseek-ai/DeepSeek-V3，apikey是abcdefg，请求body中需要给定是stream流式返回数据，然后实时流式解析返回的数据加载到聊天内容区的AI回答中
 
-
-
-
-
-
-
-# 六、代码块高亮
+### 代码块高亮
 
 注意对方返回的是markdown的格式，需要你引入marked.min.js，如果有代码需要高亮显示所以需要集成highlight.min.js，并且对方是流式返回，对于markdown代码片段需要做出片段识别和局部渲染，还有处理好结尾
 
